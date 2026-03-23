@@ -553,7 +553,7 @@ Rgb **convert_to_hsv(Rgb **arr, BitmapInfoHeader* bmif){
     }
     return arr;
 }
-*/
+
 
 void print_help(){
     printf("Course work for option 4.1, created by Popova Elizaveta\n");
@@ -750,7 +750,7 @@ int main(int argc, char *argv[]) {
                 }
                 break;
 
-            case "W":
+            case 'W':
                 operation.operation = op_hsv;
                 break;
 
