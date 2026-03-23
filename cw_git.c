@@ -36,9 +36,9 @@ typedef struct
 
 typedef struct 
 {
-    unsigned char b;
-    unsigned char g;
     unsigned char r;
+    unsigned char g;
+    unsigned char b;
 
 }Rgb;
 
@@ -505,7 +505,6 @@ Rgb **square_rhombus(Rgb **arr, BitmapInfoHeader* bmif, Point upper_vertex, int 
     return arr;
 }
 
-
 Hsv switch_to_hsv(Rgb color){
     Hsv hsv;
 
@@ -627,6 +626,8 @@ int main(int argc, char *argv[]) {
         {"upper_vertex", required_argument, 0, 'V'},
         {"size", required_argument, 0, 'S'},
 
+        {"swith_to_hsv", no_argument, 0, 'W'},
+
         {"axis", required_argument, 0, 'a'},
         {"left_up", required_argument, 0, 'l'},
         {"right_down", required_argument, 0, 'r'},
@@ -645,7 +646,7 @@ int main(int argc, char *argv[]) {
     };
 
     int opt;
-    while ((opt = getopt_long(argc, argv, "cmCbIZQV:S:A:U:E:P:T:G:B:a:l:r:d:n:R:t:L:fF:i:o:hD", long_options, NULL)) != -1) {
+    while ((opt = getopt_long(argc, argv, "cmCbIZQWV:S:A:U:E:P:T:G:B:a:l:r:d:n:R:t:L:fF:i:o:hD", long_options, NULL)) != -1) {
         switch (opt) {
 
             // copy
@@ -747,6 +748,10 @@ int main(int argc, char *argv[]) {
                 if (operation.size <= 0) {
                     Error_Handling("Size must be greater than 0");
                 }
+                break;
+
+            case "W":
+                operation.operation = op_hsv;
                 break;
 
 
@@ -971,6 +976,9 @@ int main(int argc, char *argv[]) {
             break;
         case op_square_rhombus:
             write_bmp(outputFile, square_rhombus(arr, &bmif, operation.upper_vertex, operation.size, operation.fill_color), bmfh, bmif);
+            break;
+        case op_hsv:
+            write_bmp(outputFile, convert_to_hsv(arr, &bmif), bmfh, bmif);
             break;
         default:
             break;
