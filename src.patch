@@ -1,0 +1,22 @@
+diff --git cw_git.c cw_git.c
+index 3864476..05c13f6 100644
+--- cw_git.c
++++ cw_git.c
+@@ -553,7 +553,7 @@ Rgb **convert_to_hsv(Rgb **arr, BitmapInfoHeader* bmif){
+     }
+     return arr;
+ }
+-*/
++
+ 
+ void print_help(){
+     printf("Course work for option 4.1, created by Popova Elizaveta\n");
+@@ -750,7 +750,7 @@ int main(int argc, char *argv[]) {
+                 }
+                 break;
+ 
+-            case "W":
++            case 'W':
+                 operation.operation = op_hsv;
+                 break;
+ 
