@@ -51,6 +51,7 @@ typedef enum
     op_mirror,
     op_copy,
     op_circle,
+    op_bit,
     op_info
 
 }operation_struct;
@@ -75,6 +76,11 @@ typedef struct
     Rgb color;
     int fill;
     Rgb fill_color;
+
+    const char *op;
+    int threshold_red;
+    int threshold_blue;
+    int threshold_green;
 
 }image_operation;
 
@@ -374,6 +380,34 @@ Rgb **draw_circle(Rgb **arr, BitmapInfoHeader* bmif, Point center, int radius, i
     return arr;
 }
 
+Rgb **bitwise_threshold(Rgb **arr, BitmapInfoHeader* bmif, int threshold_red, int threshold_green, int threshold_blue, const char *op){
+    int height = (int)bmif->height;
+    int width = (int)bmif->width;
+
+    for (int y = 0; y < height; y++){
+        for (int x = 0; x < width; x++){
+            Rgb pixel = arr[y][x];
+            unsigned char r, g, b;
+
+            if (strcmp(op, "and")){
+                unsigned char result = pixel.r & pixel.g & pixel.b;
+                r = (result > threshold_red) ? result : 0;
+                g = (result > threshold_green) ? result : 0;
+                b = (result > threshold_blue) ? result : 0;
+            }else{
+                unsigned char result = pixel.r ^ pixel.g ^ pixel.b;
+                r = (result > threshold_red) ? result : 0;
+                g = (result > threshold_green) ? result : 0;
+                b = (result > threshold_blue) ? result : 0;
+            }
+        arr[y][x].r = r;
+        arr[y][x].g = g;
+        arr[y][x].b = b;
+        }
+    }
+    return arr;
+}
+
 
 
 void print_help(){
@@ -411,6 +445,7 @@ void print_help(){
 }
 
 int main(int argc, char *argv[]) {
+    printf("Course work for option 4.1, created by Popova Elizaveta\n");
     
     image_operation operation = {0};
     int coordinates = 0;
@@ -427,6 +462,14 @@ int main(int argc, char *argv[]) {
         {"copy", no_argument, 0, 'c'},
         {"mirror", no_argument, 0, 'm'},
         {"circle", no_argument, 0, 'C'},
+
+        {"bitwise", no_argument, 0, 'B'},
+        {"op", required_argument, 0, 'O'},
+        {"red", required_argument, 0, 'e'},
+        {"green", required_argument, 0, 'g'},
+        {"blue", required_argument, 0, 'U'},
+
+
         {"axis", required_argument, 0, 'a'},
         {"left_up", required_argument, 0, 'l'},
         {"right_down", required_argument, 0, 'r'},
@@ -445,7 +488,7 @@ int main(int argc, char *argv[]) {
     };
 
     int opt;
-    while ((opt = getopt_long(argc, argv, "cmCa:l:r:d:n:R:t:L:fF:i:o:hD", long_options, NULL)) != -1) {
+    while ((opt = getopt_long(argc, argv, "cmCBO:e:g:U:a:l:r:d:n:R:t:L:fF:i:o:hD", long_options, NULL)) != -1) {
         switch (opt) {
             case 'c':
                 if (optarg != NULL){
@@ -480,6 +523,29 @@ int main(int argc, char *argv[]) {
                 operation.operation = op_circle;
                 break;
             
+                //op_bit
+            case 'B':
+                if (operation.operation != op_none) {
+                    Error_Handling("Only one operation is available at a time");
+                }
+                operation.operation = op_bit;
+                break;
+
+            case 'O':
+                operation.op = optarg;
+                break;
+
+            case 'e':
+                operation.threshold_red = atoi(optarg);
+                break;
+
+            case 'g':
+                operation.threshold_green = atoi(optarg);
+                break;
+
+            case 'U':
+                operation.threshold_blue = atoi(optarg);
+                break;
             
             case 'a':
 				operation.axis = optarg [0];
@@ -663,6 +729,9 @@ int main(int argc, char *argv[]) {
             break;
         case op_circle:
             write_bmp(outputFile, draw_circle(arr, &bmif, operation.center, operation.radius, operation.thickness, operation.color, operation.fill, operation.fill_color), bmfh, bmif);
+            break;
+        case op_bit:
+            write_bmp(outputFile, bitwise_threshold(arr, &bmif, operation.threshold_red, operation.threshold_green, operation.threshold_blue, operation.op), bmfh, bmif);
             break;
         default:
             break;
